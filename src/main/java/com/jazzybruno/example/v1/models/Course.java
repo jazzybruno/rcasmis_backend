@@ -6,18 +6,17 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.Date;
 
-
 @AllArgsConstructor
 @RequiredArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
-public class Employee {
+public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column
-    private Long employeeId;
+    private int courseId;
     @NotNull
     @Column
     private String name;
@@ -26,8 +25,17 @@ public class Employee {
     private String code;
     @NotNull
     @Column
-    private String JobTitle;
-    @NotNull@Column
-    private Date dob;
-
+    private int minStudent;
+    @NotNull
+    @Column
+    private int maxStudent;
+    @NotNull
+    @Column
+    private Date start;
+    @NotNull
+    @Column
+    private Date end;
+    @NotNull
+    @Column
+    private boolean isCancelled;
 }
