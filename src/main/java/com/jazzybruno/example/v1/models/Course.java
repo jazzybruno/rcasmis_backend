@@ -16,7 +16,7 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column
-    private int courseId;
+    private Long courseId;
     @NotNull
     @Column
     private String name;
