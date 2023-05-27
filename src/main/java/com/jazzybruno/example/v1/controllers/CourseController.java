@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/courses")
 @RequiredArgsConstructor
@@ -31,6 +33,11 @@ public class CourseController {
     @PreAuthorize("hasAuthority('Admin')")
     public ResponseEntity<ApiResponse> createCourse( @RequestBody  CreateCourseDTO createCourseDTO) {
         return courseService.createCourse(createCourseDTO);
+    }
+
+    @PostMapping("/create/all")
+    public ResponseEntity<ApiResponse> createManyCourses(@RequestBody List<CreateCourseDTO> createCourseDTOS) {
+        return courseService.createManyCourses(createCourseDTOS);
     }
 
     @PutMapping("/update/{courseId}")

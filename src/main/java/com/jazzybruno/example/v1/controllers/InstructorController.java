@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/instructors/")
@@ -29,6 +31,11 @@ public class InstructorController {
     @PostMapping("/create")
     public ResponseEntity<ApiResponse> createInstructor(@RequestBody CreateInstructorDTO createInstructorDTO) {
         return instructorService.createInstructor(createInstructorDTO);
+    }
+
+    @PostMapping("/create/all")
+    public ResponseEntity<ApiResponse> createManyInstructor(List<CreateInstructorDTO> createInstructorDTOS) {
+        return instructorService.createManyInstructor(createInstructorDTOS);
     }
 
     @PutMapping("/update/{instructorId}")

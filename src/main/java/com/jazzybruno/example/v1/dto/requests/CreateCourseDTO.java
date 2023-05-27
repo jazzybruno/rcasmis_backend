@@ -32,5 +32,4 @@ public class CreateCourseDTO {
 
     private boolean isCancelled;
 
-    private Long instructorId;
 }

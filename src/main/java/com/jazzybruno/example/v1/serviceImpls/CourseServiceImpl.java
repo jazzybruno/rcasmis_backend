@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -75,8 +76,6 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public ResponseEntity<ApiResponse> createCourse(CreateCourseDTO createCourseDTO) {
-        if (instructorRepository.existsById(createCourseDTO.getInstructorId())){
-            Instructor instructor = instructorRepository.findById(createCourseDTO.getInstructorId()).get();
             try {
                 Course course = new Course(
                         createCourseDTO.getName(),
@@ -85,8 +84,7 @@ public class CourseServiceImpl implements CourseService {
                         createCourseDTO.getMaxStudent(),
                         createCourseDTO.getStart(),
                         createCourseDTO.getEnd(),
-                        createCourseDTO.isCancelled(),
-                        instructor
+                        createCourseDTO.isCancelled()
                 );
 
                 courseRepository.save(course);
@@ -106,24 +104,52 @@ public class CourseServiceImpl implements CourseService {
                         )
                 );
             }
-        }else {
-            return ResponseEntity.status(404).body(
+        }
+
+    @Override
+    public ResponseEntity<ApiResponse> createManyCourses(List<CreateCourseDTO> createCourseDTOS) {
+        try {
+            int i = 0;
+            List<Course> courseList = new ArrayList<Course>();
+             while (i<createCourseDTOS.size()){
+                 Course course = new Course(
+                         createCourseDTOS.get(i).getName(),
+                         createCourseDTOS.get(i).getCode(),
+                         createCourseDTOS.get(i).getMinStudent(),
+                         createCourseDTOS.get(i).getMaxStudent(),
+                         createCourseDTOS.get(i).getStart(),
+                         createCourseDTOS.get(i).getEnd(),
+                         createCourseDTOS.get(i).isCancelled()
+                 );
+                 courseList.add(course);
+                 i++;
+             }
+            courseRepository.saveAll(courseList);
+             return ResponseEntity.ok().body(
+                     new ApiResponse(
+                             true,
+                             "Successfully created the courses",
+                             courseList
+                     )
+             );
+        }catch (Exception exception){
+            return ResponseEntity.status(500).body(
                     new ApiResponse(
                             false,
-                            "The Instructor with the id: " + createCourseDTO.getInstructorId() + " does not exist"
+                            exception.getMessage()
                     )
             );
         }
     }
 
-    public void courseMapper(Course course , UpdateCourseDTO updateCourseDTO , Instructor instructor){
+
+    public void courseMapper(Course course , UpdateCourseDTO updateCourseDTO ){
         course.setCancelled(updateCourseDTO.isCancelled());
         course.setEnd(updateCourseDTO.getEnd());
         course.setStart(updateCourseDTO.getStart());
         course.setMaxStudent(updateCourseDTO.getMaxStudent());
         course.setMinStudent(updateCourseDTO.getMinStudent());
         course.setCode(updateCourseDTO.getCode());
-        course.setInstructor(instructor);
     }
 
     @Override
@@ -131,10 +157,8 @@ public class CourseServiceImpl implements CourseService {
     public ResponseEntity<ApiResponse> updateCourse(Long courseId, UpdateCourseDTO updateCourseDTO) {
         if(courseRepository.existsById(courseId)){
             Course course = courseRepository.findById(courseId).get();
-            if (instructorRepository.existsById(updateCourseDTO.getInstructorId())){
-                Instructor instructor = instructorRepository.findById(updateCourseDTO.getInstructorId()).get();
                 try {
-                    courseMapper(course , updateCourseDTO , instructor);
+                    courseMapper(course , updateCourseDTO );
 
                     return ResponseEntity.ok().body(
                             new ApiResponse(
@@ -152,14 +176,6 @@ public class CourseServiceImpl implements CourseService {
                     );
                 }
 
-            }else {
-                return ResponseEntity.status(404).body(
-                        new ApiResponse(
-                                false,
-                                "The Instructor with the id: " + updateCourseDTO.getInstructorId() + " does not exist"
-                        )
-                );
-            }
 
         }else {
             return ResponseEntity.status(404).body(

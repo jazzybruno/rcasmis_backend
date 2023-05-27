@@ -28,5 +28,4 @@ public class UpdateCourseDTO {
 
     private boolean isCancelled;
 
-    private Long instructorId;
 }

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -101,6 +102,44 @@ public class StudentServiceImpl implements StudentService {
                 )
         );
     }
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> createManyStudents(List<CreateStudentDTO> createStudentDTOS) {
+        try {
+            List<Student> students = new ArrayList<Student>();
+            int i = 0;
+            while (i< createStudentDTOS.size()){
+                Student student = new Student(
+                        createStudentDTOS.get(i).getFirstName(),
+                        createStudentDTOS.get(i).getLastName(),
+                        createStudentDTOS.get(i).getDateOfBirth(),
+                        createStudentDTOS.get(i).getEmail(),
+                        createStudentDTOS.get(i).isInternational(),
+                        createStudentDTOS.get(i).isPartTime(),
+                        createStudentDTOS.get(i).isRepeating()
+                );
+                students.add(student);
+                i++;
+            }
+
+            studentRepository.saveAll(students);
+            return ResponseEntity.ok().body(
+                    new ApiResponse(
+                            true,
+                            "Successfully created all the students",
+                            students
+                    )
+            );
+
+        }catch (Exception e){
+            return ResponseEntity.status(500).body(
+                    new ApiResponse(
+                            true,
+                            e.getMessage()
+                    )
+            );
+        }
     }
 
     public void studentMapper(Student student , UpdateStudentDTO updateStudentDTO){

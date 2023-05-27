@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -109,6 +110,53 @@ public class InstructorServiceImpl implements InstructorService {
                     new ApiResponse(
                             false,
                             "The course with id: " + createInstructorDTO.getCourseId() + " does not exist"
+                    )
+            );
+        }
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> createManyInstructor(List<CreateInstructorDTO> createInstructorDTOS) {
+        try {
+            List<Instructor> instructors = new ArrayList<Instructor>();
+            int i = 0;
+            while (i < createInstructorDTOS.size()){
+                if (courseRepository.existsById(createInstructorDTOS.get(i).getCourseId())){
+                    Course course = courseRepository.findById(createInstructorDTOS.get(i).getCourseId()).get();
+                    Instructor instructor = new Instructor(
+                            createInstructorDTOS.get(i).getFirstName(),
+                            createInstructorDTOS.get(i).getLastName(),
+                            createInstructorDTOS.get(i).getDateOfBirth(),
+                            createInstructorDTOS.get(i).getPhoneNumber(),
+                            createInstructorDTOS.get(i).getSalary(),
+                            createInstructorDTOS.get(i).getRemunerationDate(),
+                            course
+                    );
+                    instructors.add(instructor);
+                    i++;
+                }else {
+                    return ResponseEntity.status(404).body(
+                            new ApiResponse(
+                                    false,
+                                    "The course with id: " + createInstructorDTOS.get(i).getCourseId() + " does not exit"
+                            )
+                    );
+                }
+            }
+
+            instructorRepository.saveAll(instructors);
+            return ResponseEntity.ok().body(
+                    new ApiResponse(
+                            true,
+                            "Successfully created all the instructors",
+                            instructors
+                    )
+            );
+        }catch (Exception e){
+            return ResponseEntity.status(500).body(
+                    new ApiResponse(
+                            false,
+                            e.getMessage()
                     )
             );
         }

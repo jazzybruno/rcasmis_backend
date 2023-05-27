@@ -7,7 +7,6 @@ import javax.persistence.*;
 import java.util.Date;
 
 @AllArgsConstructor
-@RequiredArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
@@ -39,11 +38,9 @@ public class Course {
     @Column
     private boolean isCancelled;
 
-    @ManyToOne
-    @JoinColumn(name = "instructor")
-    private Instructor instructor;
 
-    public Course(String nagcme, String code, int minStudent, int maxStudent, Date start, Date end, boolean isCancelled, Instructor instructor) {
+
+    public Course(String name, String code, int minStudent, int maxStudent, Date start, Date end, boolean isCancelled) {
         this.name = name;
         this.code = code;
         this.minStudent = minStudent;
@@ -51,6 +48,5 @@ public class Course {
         this.start = start;
         this.end = end;
         this.isCancelled = isCancelled;
-        this.instructor = instructor;
     }
 }
