@@ -8,6 +8,7 @@ import com.jazzybruno.example.v1.services.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -36,6 +37,11 @@ public class StudentController {
     @PostMapping("/create/all")
     public ResponseEntity<ApiResponse> createManyStudents(@RequestBody  List<CreateStudentDTO> createStudentDTOS) {
         return studentService.createManyStudents(createStudentDTOS);
+    }
+
+    @PostMapping("/upload/{studentId}")
+    public ResponseEntity<ApiResponse> uploadStudentPhoto(@PathVariable Long studentId ,  @RequestParam("file") MultipartFile multipartFile) {
+        return studentService.uploadStudentPhoto(studentId , multipartFile);
     }
 
     @PutMapping("/update/{studentId}")

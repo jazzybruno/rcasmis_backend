@@ -38,6 +38,8 @@ public class Student {
     @NotNull
     @Column
     private boolean isRepeating;
+    @Column
+    private String profileId;
 
     public Student(String firstName, String lastName, Date dateOfBirth, String email, boolean isInternational, boolean isPartTime, boolean isRepeating) {
         this.firstName = firstName;

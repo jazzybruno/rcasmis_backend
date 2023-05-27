@@ -2,16 +2,22 @@ package com.jazzybruno.example.v1.serviceImpls;
 
 import com.jazzybruno.example.v1.dto.requests.CreateStudentDTO;
 import com.jazzybruno.example.v1.dto.requests.UpdateStudentDTO;
+import com.jazzybruno.example.v1.dto.responses.FileUploadResponse;
 import com.jazzybruno.example.v1.models.Student;
 import com.jazzybruno.example.v1.payload.ApiResponse;
 import com.jazzybruno.example.v1.repositories.StudentRepository;
 import com.jazzybruno.example.v1.services.StudentService;
+import com.jazzybruno.example.v1.utils.FileUpload;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -136,6 +142,47 @@ public class StudentServiceImpl implements StudentService {
             return ResponseEntity.status(500).body(
                     new ApiResponse(
                             true,
+                            e.getMessage()
+                    )
+            );
+        }
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<ApiResponse> uploadStudentPhoto(Long studentId , MultipartFile multipartFile) {
+        try {
+            String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+            long size = multipartFile.getSize();
+            String fileCode = FileUpload.saveFile(fileName , multipartFile);
+            FileUploadResponse fileUploadResponse = new FileUploadResponse();
+            fileUploadResponse.setSize(size);
+            fileUploadResponse.setFileName(fileName);
+            fileUploadResponse.setDownloadUri("/downloadFile/" + fileCode);
+            if(studentRepository.existsById(studentId)){
+                Student student = studentRepository.findById(studentId).get();
+                student.setProfileId(fileCode);
+
+                return ResponseEntity.ok().body(
+                        new ApiResponse(
+                                true,
+                                "Successfully uploaded the student's picture with name: " + student.getFirstName(),
+                                fileUploadResponse
+                        )
+                );
+
+            }else {
+                return ResponseEntity.status(500).body(
+                        new ApiResponse(
+                                false,
+                                "The student with id: " + studentId + " does not exists"
+                        )
+                );
+            }
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ApiResponse(
+                            false ,
                             e.getMessage()
                     )
             );
