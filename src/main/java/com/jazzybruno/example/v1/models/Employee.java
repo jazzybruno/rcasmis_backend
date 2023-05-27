@@ -8,7 +8,6 @@ import java.util.Date;
 
 
 @AllArgsConstructor
-@RequiredArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
@@ -26,7 +25,7 @@ public class Employee {
     private String code;
     @NotNull
     @Column
-    private String JobTitle;
+    private String jobTitle;
     @NotNull@Column
     private Date dob;
 
@@ -35,4 +34,11 @@ public class Employee {
     @JoinColumn(name = "department")
     private Department department;
 
+    public Employee(String name, String code, String jobTitle, Date dob, Department department) {
+        this.name = name;
+        this.code = code;
+        this.jobTitle = jobTitle;
+        this.dob = dob;
+        this.department = department;
+    }
 }

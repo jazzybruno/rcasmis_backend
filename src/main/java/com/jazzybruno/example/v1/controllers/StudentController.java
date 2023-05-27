@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/students")
 @RequiredArgsConstructor
@@ -29,6 +31,11 @@ public class StudentController {
     @PostMapping("/create")
     public ResponseEntity<ApiResponse> createStudent(@RequestBody CreateStudentDTO createStudentDTO) {
         return studentService.createStudent(createStudentDTO);
+    }
+
+    @PostMapping("/create/all")
+    public ResponseEntity<ApiResponse> createManyStudents(@RequestBody  List<CreateStudentDTO> createStudentDTOS) {
+        return studentService.createManyStudents(createStudentDTOS);
     }
 
     @PutMapping("/update/{studentId}")

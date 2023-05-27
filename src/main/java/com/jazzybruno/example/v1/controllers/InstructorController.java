@@ -34,7 +34,7 @@ public class InstructorController {
     }
 
     @PostMapping("/create/all")
-    public ResponseEntity<ApiResponse> createManyInstructor(List<CreateInstructorDTO> createInstructorDTOS) {
+    public ResponseEntity<ApiResponse> createManyInstructor(@RequestBody  List<CreateInstructorDTO> createInstructorDTOS) {
         return instructorService.createManyInstructor(createInstructorDTOS);
     }
 
