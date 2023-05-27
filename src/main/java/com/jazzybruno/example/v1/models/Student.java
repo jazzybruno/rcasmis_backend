@@ -5,9 +5,9 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @AllArgsConstructor
-@RequiredArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
@@ -38,4 +38,14 @@ public class Student {
     @NotNull
     @Column
     private boolean isRepeating;
+
+    public Student(String firstName, String lastName, Date dateOfBirth, String email, boolean isInternational, boolean isPartTime, boolean isRepeating) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.dateOfBirth = dateOfBirth;
+        this.email = email;
+        this.isInternational = isInternational;
+        this.isPartTime = isPartTime;
+        this.isRepeating = isRepeating;
+    }
 }

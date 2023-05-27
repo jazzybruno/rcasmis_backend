@@ -7,7 +7,6 @@ import javax.persistence.*;
 import java.util.Date;
 
 @AllArgsConstructor
-@RequiredArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
@@ -35,4 +34,17 @@ public class Instructor {
     @NotNull
     @Column
     private Date remunerationDate;
+    @ManyToOne
+    @JoinColumn(name = "course")
+    private Course course;
+
+    public Instructor(String firstName, String lastName, Date dateOfBirth, String phoneNumber, double salary, Date remunerationDate, Course course) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.dateOfBirth = dateOfBirth;
+        this.phoneNumber = phoneNumber;
+        this.salary = salary;
+        this.remunerationDate = remunerationDate;
+        this.course = course;
+    }
 }

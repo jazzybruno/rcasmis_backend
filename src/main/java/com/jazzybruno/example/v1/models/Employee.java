@@ -30,4 +30,9 @@ public class Employee {
     @NotNull@Column
     private Date dob;
 
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "department")
+    private Department department;
+
 }

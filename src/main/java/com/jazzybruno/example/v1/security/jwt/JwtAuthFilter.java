@@ -56,6 +56,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
+
         jwtToken = authHeader.substring(7);
 
         try {

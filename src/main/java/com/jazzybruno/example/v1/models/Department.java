@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-public class Departments {
+public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column

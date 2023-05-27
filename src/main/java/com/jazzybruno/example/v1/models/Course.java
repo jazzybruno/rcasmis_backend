@@ -38,4 +38,19 @@ public class Course {
     @NotNull
     @Column
     private boolean isCancelled;
+
+    @ManyToOne
+    @JoinColumn(name = "instructor")
+    private Instructor instructor;
+
+    public Course(String nagcme, String code, int minStudent, int maxStudent, Date start, Date end, boolean isCancelled, Instructor instructor) {
+        this.name = name;
+        this.code = code;
+        this.minStudent = minStudent;
+        this.maxStudent = maxStudent;
+        this.start = start;
+        this.end = end;
+        this.isCancelled = isCancelled;
+        this.instructor = instructor;
+    }
 }
