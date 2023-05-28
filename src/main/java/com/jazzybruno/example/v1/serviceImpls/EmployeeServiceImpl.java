@@ -10,9 +10,13 @@ import com.jazzybruno.example.v1.payload.ApiResponse;
 import com.jazzybruno.example.v1.repositories.DepartmentsRepository;
 import com.jazzybruno.example.v1.repositories.EmployeeRepository;
 import com.jazzybruno.example.v1.services.EmployeeService;
+import com.jazzybruno.example.v1.utils.FileDownload;
 import com.jazzybruno.example.v1.utils.FileUpload;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +69,52 @@ public class EmployeeServiceImpl implements EmployeeService {
                     new ApiResponse(
                             false,
                             "The employee with id: " + employeeId + " does not exist"
+                    )
+            );
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> getEmployeeProfile(Long employeeId) throws IOException {
+        if (employeeRepository.existsById(employeeId)){
+            Employee employee = employeeRepository.findById(employeeId).get();
+            String fileCode = employee.getProfileId();
+            if(fileCode == null){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                        new ApiResponse(
+                                false,
+                                "The Employee with id: " + employeeId + " does not have a profile"
+                        )
+                );
+            }else {
+                FileDownload fileDownload = new FileDownload();
+                Resource resource = null;
+                resource = fileDownload.getFileAsResource(fileCode);
+                if(resource == null){
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                            new ApiResponse(
+                                    false,
+                                    "The File was not found"
+                            )
+                    );
+                }
+
+                String contentType = "application/octet-stream";
+                String headerValue = "attachment; fileName\"" + resource.getFilename() + "\"";
+
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(contentType))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
+                        .body(
+                                resource
+                        );
+            }
+
+        }else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new ApiResponse(
+                            false,
+                            "The Employee with id: " + employeeId + " does not exist"
                     )
             );
         }

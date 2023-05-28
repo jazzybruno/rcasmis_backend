@@ -11,12 +11,13 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/employees")
-public class EmployeeController {
+public class EmployeeController{
     private final EmployeeServiceImpl employeeService;
     @GetMapping
     public ResponseEntity<ApiResponse> getAllEmployees() {
@@ -26,6 +27,11 @@ public class EmployeeController {
     @GetMapping("/id/{employeeId}")
     public ResponseEntity<ApiResponse> getEmployeeById(@PathVariable Long employeeId) {
         return employeeService.getEmployeeById(employeeId);
+    }
+
+    @GetMapping("/photo/{employeeId}")
+    public ResponseEntity<?> getEmployeeProfile(@PathVariable Long employeeId) throws IOException {
+        return employeeService.getEmployeeProfile(employeeId);
     }
 
     @PostMapping("/create")
