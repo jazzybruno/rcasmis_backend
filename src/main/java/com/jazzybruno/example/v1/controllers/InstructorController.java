@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -27,6 +28,11 @@ public class InstructorController {
     @GetMapping("/id/{instructorId}")
     public ResponseEntity<ApiResponse> getInstructorById(@PathVariable  Long instructorId) {
         return instructorService.getInstructorById(instructorId);
+    }
+
+    @GetMapping("/photo/{instructorId}")
+    public ResponseEntity<?> getInstructorProfile(@PathVariable Long instructorId) throws IOException {
+        return instructorService.getInstructorProfile(instructorId);
     }
 
     @PostMapping("/create")

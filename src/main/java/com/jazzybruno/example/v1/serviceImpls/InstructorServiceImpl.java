@@ -11,9 +11,13 @@ import com.jazzybruno.example.v1.payload.ApiResponse;
 import com.jazzybruno.example.v1.repositories.CourseRepository;
 import com.jazzybruno.example.v1.repositories.InstructorRepository;
 import com.jazzybruno.example.v1.services.InstructorService;
+import com.jazzybruno.example.v1.utils.FileDownload;
 import com.jazzybruno.example.v1.utils.FileUpload;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,6 +80,52 @@ public class InstructorServiceImpl implements InstructorService {
                     new ApiResponse(
                             false,
                             "The instructor with id: " + instructorId + " does not exist"
+                    )
+            );
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> getInstructorProfile(Long instructorId) throws IOException {
+        if (instructorRepository.existsById(instructorId)){
+            Instructor instructor = instructorRepository.findById(instructorId).get();
+            String fileCode = instructor.getPhotoId();
+            if(fileCode == null){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                        new ApiResponse(
+                                false,
+                                "The Instructor with id: " + instructorId + " does not have a profile"
+                        )
+                );
+            }else {
+                FileDownload fileDownload = new FileDownload();
+                Resource resource = null;
+                resource = fileDownload.getFileAsResource(fileCode);
+                if(resource == null){
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                            new ApiResponse(
+                                    false,
+                                    "The File was not found"
+                            )
+                    );
+                }
+
+                String contentType = "application/octet-stream";
+                String headerValue = "attachment; fileName\"" + resource.getFilename() + "\"";
+
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(contentType))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
+                        .body(
+                                resource
+                        );
+            }
+
+        }else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new ApiResponse(
+                            false,
+                            "The Instructor with id: " + instructorId + " does not exist"
                     )
             );
         }
