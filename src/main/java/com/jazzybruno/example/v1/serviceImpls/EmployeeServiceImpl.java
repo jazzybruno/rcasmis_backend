@@ -109,6 +109,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<ApiResponse> uploadEmployeePhoto(Long employeeId, MultipartFile multipartFile) {
         try {
             String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());

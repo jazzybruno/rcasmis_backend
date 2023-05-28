@@ -123,6 +123,7 @@ public class InstructorServiceImpl implements InstructorService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<ApiResponse> uploadInstructorPhoto(Long instructorId, MultipartFile multipartFile) {
         try {
             String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
