@@ -38,6 +38,8 @@ public class Instructor {
     @JoinColumn(name = "course")
     private Course course;
 
+    private String photoId;
+
     public Instructor(String firstName, String lastName, Date dateOfBirth, String phoneNumber, double salary, Date remunerationDate, Course course) {
         this.firstName = firstName;
         this.lastName = lastName;

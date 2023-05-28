@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,6 +32,11 @@ public class InstructorController {
     @PostMapping("/create")
     public ResponseEntity<ApiResponse> createInstructor(@RequestBody CreateInstructorDTO createInstructorDTO) {
         return instructorService.createInstructor(createInstructorDTO);
+    }
+
+    @PostMapping("/upload/{instructorId}")
+    public ResponseEntity<ApiResponse> uploadInstructorPhoto(@PathVariable Long instructorId, @RequestParam("file") MultipartFile multipartFile) {
+        return instructorService.uploadInstructorPhoto(instructorId , multipartFile);
     }
 
     @PostMapping("/create/all")

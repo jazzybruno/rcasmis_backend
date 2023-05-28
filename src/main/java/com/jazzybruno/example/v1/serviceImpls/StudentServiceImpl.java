@@ -154,22 +154,58 @@ public class StudentServiceImpl implements StudentService {
         try {
             String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
             long size = multipartFile.getSize();
-            String fileCode = FileUpload.saveFile(fileName , multipartFile);
-            FileUploadResponse fileUploadResponse = new FileUploadResponse();
-            fileUploadResponse.setSize(size);
-            fileUploadResponse.setFileName(fileName);
-            fileUploadResponse.setDownloadUri("/downloadFile/" + fileCode);
             if(studentRepository.existsById(studentId)){
                 Student student = studentRepository.findById(studentId).get();
-                student.setProfileId(fileCode);
+                if(student.getProfileId() == null){
+                    String fileCode = FileUpload.saveFile(fileName , multipartFile);
+                    FileUploadResponse fileUploadResponse = new FileUploadResponse();
+                    fileUploadResponse.setSize(size);
+                    fileUploadResponse.setFileName(fileName);
+                    fileUploadResponse.setDownloadUri("/downloadFile/" + fileCode);
+                    student.setProfileId(fileCode);
 
-                return ResponseEntity.ok().body(
-                        new ApiResponse(
-                                true,
-                                "Successfully uploaded the student's picture with name: " + student.getFirstName(),
-                                fileUploadResponse
-                        )
-                );
+                    return ResponseEntity.ok().body(
+                            new ApiResponse(
+                                    true,
+                                    "Successfully uploaded the student's picture with name: " + student.getFirstName(),
+                                    fileUploadResponse
+                            )
+                    );
+
+                }else{
+                    // TODO: 5/27/2023 Delete the existing and add the new photo
+                    String savedFileCode = student.getProfileId();
+                    String filePath = FileUpload.getFile(savedFileCode);
+                    System.out.println(filePath);
+                    boolean isFilePresent = FileUpload.deleteFile(filePath);
+                    if(isFilePresent){
+                        String fileCode = FileUpload.saveFile(fileName , multipartFile);
+                        FileUploadResponse fileUploadResponse = new FileUploadResponse();
+                        fileUploadResponse.setSize(size);
+                        fileUploadResponse.setFileName(fileName);
+                        fileUploadResponse.setDownloadUri("/downloadFile/" + fileCode);
+                        student.setProfileId(fileCode);
+
+                        return ResponseEntity.ok().body(
+                                new ApiResponse(
+                                        true,
+                                        "Successfully uploaded the student's picture with name: " + student.getFirstName(),
+                                        fileUploadResponse
+                                )
+                        );
+
+                    }else {
+                        return ResponseEntity.status(500).body(
+                                new ApiResponse(
+                                        false,
+                                        "Failed to delete the already existing file"
+                                )
+                        );
+                    }
+
+                }
+
+                // TODO: 5/27/2023  Finished the file upload
 
             }else {
                 return ResponseEntity.status(500).body(

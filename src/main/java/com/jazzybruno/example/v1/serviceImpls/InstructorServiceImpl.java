@@ -3,17 +3,24 @@ package com.jazzybruno.example.v1.serviceImpls;
 import com.jazzybruno.example.v1.dto.requests.CreateInstructorDTO;
 import com.jazzybruno.example.v1.dto.requests.UpdateInstructorDTO;
 import com.jazzybruno.example.v1.dto.requests.UpdateStudentDTO;
+import com.jazzybruno.example.v1.dto.responses.FileUploadResponse;
 import com.jazzybruno.example.v1.models.Course;
 import com.jazzybruno.example.v1.models.Instructor;
+import com.jazzybruno.example.v1.models.Student;
 import com.jazzybruno.example.v1.payload.ApiResponse;
 import com.jazzybruno.example.v1.repositories.CourseRepository;
 import com.jazzybruno.example.v1.repositories.InstructorRepository;
 import com.jazzybruno.example.v1.services.InstructorService;
+import com.jazzybruno.example.v1.utils.FileUpload;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -110,6 +117,82 @@ public class InstructorServiceImpl implements InstructorService {
                     new ApiResponse(
                             false,
                             "The course with id: " + createInstructorDTO.getCourseId() + " does not exist"
+                    )
+            );
+        }
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> uploadInstructorPhoto(Long instructorId, MultipartFile multipartFile) {
+        try {
+            String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+            long size = multipartFile.getSize();
+            if(instructorRepository.existsById(instructorId)){
+                Instructor instructor = instructorRepository.findById(instructorId).get();
+                if(instructor.getPhotoId() == null){
+                    String fileCode = FileUpload.saveFile(fileName , multipartFile);
+                    FileUploadResponse fileUploadResponse = new FileUploadResponse();
+                    fileUploadResponse.setSize(size);
+                    fileUploadResponse.setFileName(fileName);
+                    fileUploadResponse.setDownloadUri("/downloadFile/" + fileCode);
+                    instructor.setPhotoId(fileCode);
+
+                    return ResponseEntity.ok().body(
+                            new ApiResponse(
+                                    true,
+                                    "Successfully uploaded the Instructor's picture with name: " + instructor.getFirstName(),
+                                    fileUploadResponse
+                            )
+                    );
+
+                }else{
+                    // TODO: 5/27/2023 Delete the existing and add the new photo
+                    String savedFileCode = instructor.getPhotoId();
+                    String filePath = FileUpload.getFile(savedFileCode);
+                    System.out.println(filePath);
+                    boolean isFilePresent = FileUpload.deleteFile(filePath);
+                    if(isFilePresent){
+                        String fileCode = FileUpload.saveFile(fileName , multipartFile);
+                        FileUploadResponse fileUploadResponse = new FileUploadResponse();
+                        fileUploadResponse.setSize(size);
+                        fileUploadResponse.setFileName(fileName);
+                        fileUploadResponse.setDownloadUri("/downloadFile/" + fileCode);
+                        instructor.setPhotoId(fileCode);
+
+                        return ResponseEntity.ok().body(
+                                new ApiResponse(
+                                        true,
+                                        "Successfully uploaded the instrcutor's picture with name: " + instructor.getFirstName(),
+                                        fileUploadResponse
+                                )
+                        );
+
+                    }else {
+                        return ResponseEntity.status(500).body(
+                                new ApiResponse(
+                                        false,
+                                        "Failed to delete the already existing file"
+                                )
+                        );
+                    }
+
+                }
+
+                // TODO: 5/27/2023  Finished the file upload
+
+            }else {
+                return ResponseEntity.status(500).body(
+                        new ApiResponse(
+                                false,
+                                "The Instructor with id: " + instructorId + " does not exists"
+                        )
+                );
+            }
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ApiResponse(
+                            false ,
+                            e.getMessage()
                     )
             );
         }
