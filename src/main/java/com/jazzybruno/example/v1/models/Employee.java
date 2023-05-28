@@ -33,6 +33,8 @@ public class Employee {
     @ManyToOne
     @JoinColumn(name = "department")
     private Department department;
+    @Column
+    private String profileId;
 
     public Employee(String name, String code, String jobTitle, Date dob, Department department) {
         this.name = name;

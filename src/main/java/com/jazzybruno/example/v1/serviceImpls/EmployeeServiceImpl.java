@@ -2,17 +2,24 @@ package com.jazzybruno.example.v1.serviceImpls;
 
 import com.jazzybruno.example.v1.dto.requests.CreateEmployeeDTO;
 import com.jazzybruno.example.v1.dto.requests.UpdateEmployeeDTO;
+import com.jazzybruno.example.v1.dto.responses.FileUploadResponse;
 import com.jazzybruno.example.v1.models.Department;
 import com.jazzybruno.example.v1.models.Employee;
+import com.jazzybruno.example.v1.models.Student;
 import com.jazzybruno.example.v1.payload.ApiResponse;
 import com.jazzybruno.example.v1.repositories.DepartmentsRepository;
 import com.jazzybruno.example.v1.repositories.EmployeeRepository;
 import com.jazzybruno.example.v1.services.EmployeeService;
+import com.jazzybruno.example.v1.utils.FileUpload;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,6 +103,82 @@ public class EmployeeServiceImpl implements EmployeeService {
                     new ApiResponse(
                             false,
                             "The Department with id: " + createEmployeeDTO.getDepartmentId() + " does not exist"
+                    )
+            );
+        }
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> uploadEmployeePhoto(Long employeeId, MultipartFile multipartFile) {
+        try {
+            String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+            long size = multipartFile.getSize();
+            if(employeeRepository.existsById(employeeId)){
+                Employee employee = employeeRepository.findById(employeeId).get();
+                if(employee.getProfileId() == null){
+                    String fileCode = FileUpload.saveFile(fileName , multipartFile);
+                    FileUploadResponse fileUploadResponse = new FileUploadResponse();
+                    fileUploadResponse.setSize(size);
+                    fileUploadResponse.setFileName(fileName);
+                    fileUploadResponse.setDownloadUri("/downloadFile/" + fileCode);
+                    employee.setProfileId(fileCode);
+
+                    return ResponseEntity.ok().body(
+                            new ApiResponse(
+                                    true,
+                                    "Successfully uploaded the employee's picture with name: " + employee.getName(),
+                                    fileUploadResponse
+                            )
+                    );
+
+                }else{
+                    // TODO: 5/27/2023 Delete the existing and add the new photo
+                    String savedFileCode = employee.getProfileId();
+                    String filePath = FileUpload.getFile(savedFileCode);
+                    System.out.println(filePath);
+                    boolean isFilePresent = FileUpload.deleteFile(filePath);
+                    if(isFilePresent){
+                        String fileCode = FileUpload.saveFile(fileName , multipartFile);
+                        FileUploadResponse fileUploadResponse = new FileUploadResponse();
+                        fileUploadResponse.setSize(size);
+                        fileUploadResponse.setFileName(fileName);
+                        fileUploadResponse.setDownloadUri("/downloadFile/" + fileCode);
+                        employee.setProfileId(fileCode);
+
+                        return ResponseEntity.ok().body(
+                                new ApiResponse(
+                                        true,
+                                        "Successfully uploaded the employee's picture with name: " + employee.getName(),
+                                        fileUploadResponse
+                                )
+                        );
+
+                    }else {
+                        return ResponseEntity.status(500).body(
+                                new ApiResponse(
+                                        false,
+                                        "Failed to delete the already existing file"
+                                )
+                        );
+                    }
+
+                }
+
+                // TODO: 5/27/2023  Finished the file upload
+
+            }else {
+                return ResponseEntity.status(500).body(
+                        new ApiResponse(
+                                false,
+                                "The employee with id: " + employeeId + " does not exists"
+                        )
+                );
+            }
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ApiResponse(
+                            false ,
+                            e.getMessage()
                     )
             );
         }

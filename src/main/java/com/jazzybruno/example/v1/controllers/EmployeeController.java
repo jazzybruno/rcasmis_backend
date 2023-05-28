@@ -4,9 +4,12 @@ import com.jazzybruno.example.v1.dto.requests.CreateEmployeeDTO;
 import com.jazzybruno.example.v1.dto.requests.UpdateEmployeeDTO;
 import com.jazzybruno.example.v1.payload.ApiResponse;
 import com.jazzybruno.example.v1.serviceImpls.EmployeeServiceImpl;
+import com.jazzybruno.example.v1.services.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -28,6 +31,11 @@ public class EmployeeController {
     @PostMapping("/create")
     public ResponseEntity<ApiResponse> createEmployee(@RequestBody CreateEmployeeDTO createEmployeeDTO) {
         return employeeService.createEmployee(createEmployeeDTO);
+    }
+
+    @PostMapping("/upload/{employeeId}")
+    public ResponseEntity<ApiResponse> uploadEmployeePhoto(@PathVariable Long employeeId, @RequestParam("file") MultipartFile multipartFile) {
+        return employeeService.uploadEmployeePhoto(employeeId , multipartFile);
     }
 
     @PostMapping("/create/all")
